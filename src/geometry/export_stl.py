@@ -1,18 +1,16 @@
 import numpy as np
 import cadquery as cq
 from cadquery import exporters
+from pathlib import Path
 
-class AirfoilExporterSTL:
-    """Exports a 2D airfoil contour (Nx2) to an STL by extrusion using CadQuery."""
-
-    @staticmethod
-    def export_from_contour(
+def export_from_contour(
         contour: np.ndarray,
         filename: str,
         thickness: float = 0.5,
         workplane: str = "XY",
-        ensure_closed: bool = True
-    ) -> None:
+        ensure_closed: bool = True,
+        output_dir: str | Path | None = None,
+    ) -> Path:
         """
         Export an STL from a 2D contour by extruding it.
 
@@ -20,16 +18,24 @@ class AirfoilExporterSTL:
         ----------
         contour : np.ndarray
             Nx2 array of [x, y] points describing the airfoil contour.
-            Points should define a non-self-intersecting loop.
         filename : str
             Output STL file name (e.g., "naca2412.stl").
         thickness : float
-            Extrusion thickness (in the same units as your points, usually mm).
+            Extrusion thickness.
         workplane : str
             CadQuery workplane (default "XY").
         ensure_closed : bool
             If True, closes the polyline before extrusion.
+        output_dir : str | Path | None
+            Directory where the STL will be generated.
+            If None, the project root (current working directory) is used.
+
+        Returns
+        -------
+        Path
+            Full path to the generated STL file.
         """
+
         pts = np.asarray(contour, dtype=float)
 
         if pts.ndim != 2 or pts.shape[1] != 2:
@@ -41,7 +47,16 @@ class AirfoilExporterSTL:
         if thickness <= 0:
             raise ValueError("thickness must be > 0")
 
-        # CadQuery expects Python tuples/lists of (x, y)
+        # Resolve output directory
+        if output_dir is None:
+            output_dir = Path.cwd()
+        else:
+            output_dir = Path(output_dir).resolve()
+            output_dir.mkdir(parents=True, exist_ok=True)
+
+        output_path = output_dir / filename
+
+        # CadQuery expects (x, y) tuples
         pts_list = [(float(x), float(y)) for x, y in pts]
 
         wp = cq.Workplane(workplane).polyline(pts_list)
@@ -49,9 +64,9 @@ class AirfoilExporterSTL:
         if ensure_closed:
             wp = wp.close()
 
-        # Extrude the closed wire to form a solid
         solid = wp.extrude(thickness)
 
-        # Export STL
-        exporters.export(solid, filename)
+        exporters.export(solid, str(output_path))
+
+        return output_path
 
