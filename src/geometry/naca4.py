@@ -1,9 +1,11 @@
 import numpy as np
 import cadquery as cq
+from shapely.geometry import Polygon, Point
+import matplotlib.pyplot as plt
 
 class NACA4Airfoil:
     def __init__(self, M_digit, P_digit, T_digits,
-                 closed_te=True):
+                 closed_te=True, name=None):
 
         self.M_digit = M_digit
         self.P_digit = P_digit
@@ -14,14 +16,15 @@ class NACA4Airfoil:
         self.P = P_digit / 10
         self.T = T_digits / 100
 
+        self.name=name 
+
         self.__validate()
 
     @classmethod
     def from_code(cls, code: str, closed_te=True, orientation_deg=0.0):
         if len(code) != 4 or not code.isdigit():
             raise ValueError("Invalid NACA 4-digit code.")
-        return cls(int(code[0]), int(code[1]), int(code[2:]),
-                   closed_te=closed_te)
+        return cls(int(code[0]), int(code[1]), int(code[2:]),closed_te=closed_te, name=f"NACA {code}")
 
     # ==========================
     # PRIVATE INTERNAL METHODS
@@ -83,3 +86,79 @@ class NACA4Airfoil:
         contour = np.vstack([upper[::-1], lower[1:]])
 
         return contour
+    
+    def compute_sdf(
+        self,
+        *,
+        airfoil_step: float = 0.002,
+        x_min: float = -0.5,
+        x_max: float = 1.5,
+        y_min: float = -0.5,
+        y_max: float = 0.5,
+        resolution_x: int = 200,
+        resolution_y: int = 80,
+        signed_distance: bool = True,
+        inside_value: float = -1.0,
+    ):
+        """
+        Compute a 2D Signed Distance Function (SDF) of the airfoil.
+
+        Returns
+        -------
+        sdf : ndarray (resolution_y, resolution_x)
+            Signed distance field.
+        X, Y : ndarray
+            Coordinate grids (useful for plotting).
+        """
+        contour = self.coordinates(airfoil_step)
+        x_points = contour[:, 0]
+        y_points = contour[:, 1]
+
+        polygon = Polygon(contour)
+        if not polygon.is_valid:
+            polygon = polygon.buffer(0)
+        if polygon.is_empty:
+            raise ValueError("Invalid polygon generated from airfoil contour.")
+
+        xs = np.linspace(x_min, x_max, resolution_x)
+        ys = np.linspace(y_min, y_max, resolution_y)
+        #X, Y = np.meshgrid(xs, ys)
+
+        sdf = np.empty((resolution_y, resolution_x), dtype=float)
+
+        for j in range(resolution_y):
+            y = ys[j]
+            for k in range(resolution_x):
+                x = xs[k]
+                point = Point(x, y)
+
+                # Distance to discretized contour (same logic as original code)
+                distances = np.sqrt((x - x_points)**2 + (y - y_points)**2)
+                min_distance = float(np.min(distances))
+
+                inside = polygon.contains(point)
+
+                if inside:
+                    if signed_distance:
+                        sdf[j, k] = -1
+                else:
+                    sdf[j, k] = min_distance
+
+        # Matrix inversion for correct visualization
+        sdf = np.flipud(sdf)
+        return sdf
+    
+    def plot_sdf(self):
+
+        sdf = self.compute_sdf()
+        plt.imshow(sdf, cmap='viridis') 
+        plt.colorbar()  
+        if self.name is not None:
+            plt.title(f"SDF – {self.name}")
+        else:
+            plt.title("SDF – NACA 4-digit airfoil")
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.axis("equal")
+        plt.show()
+        
