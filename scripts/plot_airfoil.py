@@ -11,6 +11,7 @@ def main():
     AirfoilPlotter.plot_contour(contour, title="NACA")
 
     AirfoilPlotter.plot_contour(AirfoilTransform.rotate(contour, 45), title="NACA")
+    AirfoilExporterSTL.export_from_contour(contour, "airfoil.stl")
 
 
 

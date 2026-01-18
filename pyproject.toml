@@ -1,17 +1,17 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0","wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "airfoil-geometry"
+name = "cfd-surrogate-models-wind-turbine-blades"
 version = "0.1.0"
-description = "Herramientas para generación y manipulación de perfiles NACA"
-authors = [{ name = "Tu Nombre" }]
-requires-python = ">=3.9"
+description = "CFD surrogate models for wind turbine blades"
+requires-python = ">=3.10"
 
 dependencies = [
     "numpy",
+    "scipy",
     "matplotlib",
-    "cadquery"
+    "cadquery",
+    "scikit-learn",
 ]
-

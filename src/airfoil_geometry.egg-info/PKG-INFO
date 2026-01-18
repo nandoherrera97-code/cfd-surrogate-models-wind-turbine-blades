@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: airfoil-geometry
+Version: 0.1.0
+Summary: Herramientas para generación y manipulación de perfiles NACA
+Author: Tu Nombre
+Requires-Python: >=3.9
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Requires-Dist: cadquery
