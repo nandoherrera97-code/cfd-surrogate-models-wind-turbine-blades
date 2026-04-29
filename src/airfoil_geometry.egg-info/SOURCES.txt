@@ -1,0 +1,11 @@
+pyproject.toml
+src/airfoil_geometry.egg-info/PKG-INFO
+src/airfoil_geometry.egg-info/SOURCES.txt
+src/airfoil_geometry.egg-info/dependency_links.txt
+src/airfoil_geometry.egg-info/requires.txt
+src/airfoil_geometry.egg-info/top_level.txt
+src/geometry/__init__.py
+src/geometry/export_stl.py
+src/geometry/naca4.py
+src/geometry/plot.py
+src/geometry/transform.py

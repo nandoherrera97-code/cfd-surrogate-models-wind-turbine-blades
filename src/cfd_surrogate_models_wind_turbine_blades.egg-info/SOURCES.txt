@@ -1,0 +1,13 @@
+pyproject.toml
+src/cfd_surrogate_models_wind_turbine_blades.egg-info/PKG-INFO
+src/cfd_surrogate_models_wind_turbine_blades.egg-info/SOURCES.txt
+src/cfd_surrogate_models_wind_turbine_blades.egg-info/dependency_links.txt
+src/cfd_surrogate_models_wind_turbine_blades.egg-info/requires.txt
+src/cfd_surrogate_models_wind_turbine_blades.egg-info/top_level.txt
+src/geometry/__init__.py
+src/geometry/export_stl.py
+src/geometry/naca4.py
+src/geometry/plot.py
+src/geometry/random_airfoil_generator.py
+src/geometry/transform.py
+src/simulation/Openfoam.py

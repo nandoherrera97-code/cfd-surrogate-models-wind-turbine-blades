@@ -1,0 +1,10 @@
+data/*
+!data/.gitkeep
+__pycache__/
+.ipynb_checkpoints/
+*.stl
+*.vtk
+*.vtu
+.venv/
+
+.venv/
